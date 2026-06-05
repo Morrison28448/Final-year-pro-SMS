@@ -12,24 +12,24 @@ import {
 } from '../../services/settings.service'
 import { getErrorMessage } from '../../utils/helpers'
 
+import Tabs from '../../components/ui/Tabs'
+import Button from '../../components/ui/Button'
+
 const TABS = [
-  { id: 'school',   label: '🏫  School Profile' },
-  { id: 'personal', label: '👤  My Profile' },
-  { id: 'password', label: '🔒  Password' },
+  { id: 'school',   label: 'School Profile' },
+  { id: 'personal', label: 'My Profile' },
+  { id: 'password', label: 'Password' },
 ]
 
-// ── Save button ───────────────────────────────────────────────────────────────
 const SaveBtn = ({ loading, label = 'Save Changes' }) => (
-  <button type="submit" disabled={loading}
-    className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition flex items-center gap-2">
+  <Button type="submit" disabled={loading}>
     {loading && <Spinner size="sm" className="border-white border-t-transparent" />}
     {loading ? 'Saving…' : label}
-  </button>
+  </Button>
 )
 
-// ── Alert ─────────────────────────────────────────────────────────────────────
 const Alert = ({ msg, type }) => msg ? (
-  <div className={`p-3 rounded-lg text-sm ${type === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'}`}>
+  <div className={type === 'error' ? 'alert-error' : 'alert-success'}>
     {msg}
   </div>
 ) : null
@@ -120,19 +120,14 @@ const SettingsPage = () => {
     <div className="space-y-6">
       <PageHeader title="Settings" subtitle="Manage your school profile, personal details and security." />
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-        {TABS.filter((t) => t.id !== 'school' || user?.role === 'school_admin').map((tab) => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        tabs={TABS.filter((t) => t.id !== 'school' || user?.role === 'school_admin')}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
-      {/* ── School Profile ─────────────────────────────────── */}
       {activeTab === 'school' && user?.role === 'school_admin' && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 max-w-2xl">
+        <div className="card p-6 max-w-2xl">
           <h2 className="text-base font-semibold text-gray-900 mb-5">School Information</h2>
           {schoolLoading ? (
             <div className="flex items-center gap-3"><Spinner size="md" /><p className="text-sm text-gray-500">Loading…</p></div>
@@ -163,8 +158,8 @@ const SettingsPage = () => {
 
       {/* ── Personal Profile ───────────────────────────────── */}
       {activeTab === 'personal' && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 max-w-2xl">
-          <h2 className="text-base font-semibold text-gray-900 mb-5">Personal Information</h2>
+        <div className="card p-6 max-w-2xl">
+          <h2 className="text-base font-semibold text-slate-900 mb-5">Personal Information</h2>
           <form onSubmit={handleProfileSave} className="space-y-4">
             <Alert msg={profileMsg?.text} type={profileMsg?.type} />
             <div className="grid grid-cols-2 gap-4">
@@ -191,8 +186,8 @@ const SettingsPage = () => {
 
       {/* ── Password ───────────────────────────────────────── */}
       {activeTab === 'password' && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 max-w-md">
-          <h2 className="text-base font-semibold text-gray-900 mb-5">Change Password</h2>
+        <div className="card p-6 max-w-md">
+          <h2 className="text-base font-semibold text-slate-900 mb-5">Change Password</h2>
           <form onSubmit={handlePasswordSave} className="space-y-4">
             <Alert msg={pwMsg?.text} type={pwMsg?.type} />
             <FormField label="Current Password" required>

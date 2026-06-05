@@ -47,13 +47,12 @@ const SchoolsTable = ({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      {/* ── Table header / search bar ─────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-gray-100">
+    <div className="card overflow-hidden">
+      <div className="card-header">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">All Schools</h2>
+          <h2 className="text-base font-semibold text-slate-900">All Schools</h2>
           {pagination.total !== undefined && (
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               {pagination.total} school{pagination.total !== 1 ? 's' : ''} registered
             </p>
           )}
@@ -66,11 +65,11 @@ const SchoolsTable = ({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search schools…"
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+            className="input-field w-48 py-2"
           />
           <button
             type="submit"
-            className="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+            className="btn-primary btn-sm"
           >
             Search
           </button>
@@ -90,18 +89,18 @@ const SchoolsTable = ({
         />
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="data-table">
             <thead>
-              <tr className="bg-gray-50 text-left">
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">School</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Contact</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Subscription</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Joined</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Action</th>
+              <tr>
+                <th>School</th>
+                <th>Contact</th>
+                <th>Subscription</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {schools.map((school) => {
                 const sub = school.subscriptions?.[0] || school.subscriptions || null
                 const isToggling = togglingId === school.id

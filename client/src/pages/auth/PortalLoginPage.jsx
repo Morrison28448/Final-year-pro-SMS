@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../api/axios'
 import { getErrorMessage, getInitials } from '../../utils/helpers'
@@ -36,10 +36,13 @@ const useSchoolSearch = () => {
 
 // ── Role badge ────────────────────────────────────────────────────────────────
 const ROLE_CONFIG = {
-  teacher: { label: 'Teacher',  color: 'bg-purple-100 text-purple-700', icon: '👨‍🏫' },
-  student: { label: 'Student',  color: 'bg-blue-100 text-blue-700',     icon: '🎓' },
-  parent:  { label: 'Parent',   color: 'bg-green-100 text-green-700',   icon: '👨‍👩‍👧' },
+  school_admin: { label: 'Admin',    color: 'bg-indigo-100 text-indigo-700', icon: '🏫' },
+  teacher:      { label: 'Teacher',  color: 'bg-purple-100 text-purple-700', icon: '👨‍🏫' },
+  student:      { label: 'Student',  color: 'bg-blue-100 text-blue-700',     icon: '🎓' },
+  parent:       { label: 'Parent',   color: 'bg-green-100 text-green-700',   icon: '👨‍👩‍👧' },
 }
+
+const PORTAL_ROLES = ['school_admin', 'teacher', 'student', 'parent']
 
 // ── Steps ─────────────────────────────────────────────────────────────────────
 const STEPS = ['Select School', 'Sign In']
@@ -96,10 +99,9 @@ const PortalLoginPage = () => {
         return
       }
 
-      // Only allow teacher, student, parent through the portal
-      const portalRoles = ['teacher', 'student', 'parent']
-      if (!portalRoles.includes(user.role)) {
-        setError('This portal is for teachers, students and parents only. Admins should use the main login.')
+      // Allow school staff and families through the portal
+      if (!PORTAL_ROLES.includes(user.role)) {
+        setError('This portal is for school administrators, teachers, students and parents.')
         setLoading(false)
         return
       }
@@ -117,13 +119,13 @@ const PortalLoginPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       {/* Top bar */}
       <header className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">S</div>
-          <span className="font-semibold text-gray-800 text-sm">SMS Platform</span>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">E</div>
+          <div>
+            <span className="font-semibold text-slate-900 text-sm tracking-tight">EduFlow</span>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider">School Portal</p>
+          </div>
         </div>
-        <Link to="/login" className="text-sm text-gray-500 hover:text-gray-700 transition">
-          Admin login →
-        </Link>
       </header>
 
       {/* Main content */}
@@ -142,9 +144,9 @@ const PortalLoginPage = () => {
                   </div>
                 ))}
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Student & Staff Portal</h1>
-              <p className="text-gray-500 text-sm mt-1">
-                For teachers, students and parents
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">School Portal</h1>
+              <p className="text-slate-500 text-sm mt-1">
+                Sign in for admins, teachers, students and parents
               </p>
             </div>
 
@@ -339,19 +341,10 @@ const PortalLoginPage = () => {
               </div>
             )}
 
-            {/* Footer */}
-            <div className="mt-6 pt-5 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400">
-                Are you a school admin?{' '}
-                <Link to="/login" className="text-blue-600 font-medium hover:underline">
-                  Admin login
-                </Link>
-              </p>
-            </div>
           </div>
 
           {/* Role info */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {Object.entries(ROLE_CONFIG).map(([role, cfg]) => (
               <div key={role} className="bg-white rounded-xl border border-gray-200 p-3 text-center">
                 <div className="text-2xl mb-1">{cfg.icon}</div>

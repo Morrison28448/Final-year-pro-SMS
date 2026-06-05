@@ -63,7 +63,7 @@ const deleteSubject = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// ── Assign subjects to class ──────────────────────────────────────────────────
+// ── Class-Subject assignments ─────────────────────────────────────────────────
 
 const assignSubjectsToClass = async (req, res, next) => {
   try {
@@ -76,8 +76,25 @@ const assignSubjectsToClass = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
+/**
+ * PATCH /api/academics/classes/:classId/subjects/:subjectId/teacher
+ * Body: { teacherId } — set to null to unassign
+ */
+const assignTeacherToSubject = async (req, res, next) => {
+  try {
+    const { teacherId } = req.body
+    const assignment = await classService.assignTeacherToSubject(
+      req.user.school_id,
+      req.params.classId,
+      req.params.subjectId,
+      teacherId || null
+    )
+    return success(res, { assignment }, teacherId ? 'Teacher assigned' : 'Teacher unassigned')
+  } catch (err) { next(err) }
+}
+
 module.exports = {
   getClasses, createClass, updateClass, deleteClass,
   getSubjects, createSubject, updateSubject, deleteSubject,
-  assignSubjectsToClass,
+  assignSubjectsToClass, assignTeacherToSubject,
 }

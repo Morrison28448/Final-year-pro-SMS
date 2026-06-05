@@ -41,13 +41,12 @@ const StudentsTable = ({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      {/* ── Header ────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-gray-100">
+    <div className="card overflow-hidden">
+      <div className="card-header">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Students</h2>
+          <h2 className="text-base font-semibold text-slate-900">Students</h2>
           {pagination.total !== undefined && (
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               {pagination.total} student{pagination.total !== 1 ? 's' : ''} enrolled
             </p>
           )}
@@ -58,14 +57,9 @@ const StudentsTable = ({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search by name, email, ID…"
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-52"
+            className="input-field w-52 py-2"
           />
-          <button
-            type="submit"
-            className="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
-          >
-            Search
-          </button>
+          <button type="submit" className="btn-primary btn-sm">Search</button>
         </form>
       </div>
 
@@ -82,22 +76,20 @@ const StudentsTable = ({
         />
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="data-table">
             <thead>
-              <tr className="bg-gray-50 text-left">
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Adm. No.</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Class</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Gender</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Guardian</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Enrolled</th>
-                {!readOnly && (
-                  <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
-                )}
+              <tr>
+                <th>Student</th>
+                <th>Adm. No.</th>
+                <th>Class</th>
+                <th>Gender</th>
+                <th>Guardian</th>
+                <th>Status</th>
+                <th>Enrolled</th>
+                {!readOnly && <th>Actions</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {students.map((student) => {
                 const firstName = student.users?.first_name || ''
                 const lastName  = student.users?.last_name  || ''

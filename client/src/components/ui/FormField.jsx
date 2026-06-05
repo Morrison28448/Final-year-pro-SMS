@@ -1,22 +1,14 @@
-/**
- * FormField — labelled input wrapper
- *
- * Props:
- *  label       string
- *  error       string   — validation error message
- *  required    boolean
- *  children    ReactNode — the actual input/select element
- */
-const FormField = ({ label, error, required = false, children }) => (
-  <div className="flex flex-col gap-1">
+const FormField = ({ label, error, required = false, children, hint }) => (
+  <div className="flex flex-col gap-1.5">
     {label && (
-      <label className="text-sm font-medium text-gray-700">
+      <label className="label-field">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
     )}
     {children}
-    {error && <p className="text-xs text-red-600 mt-0.5">{error}</p>}
+    {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
+    {error && <p className="text-xs text-red-600">{error}</p>}
   </div>
 )
 

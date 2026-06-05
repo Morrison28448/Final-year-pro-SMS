@@ -1,46 +1,36 @@
 /**
- * StatCard — reusable metric card for dashboards
- *
- * Props:
- *  title       string   — metric label
- *  value       string|number — main value
- *  icon        string   — emoji or icon character
- *  trend       string   — optional sub-text (e.g. "+3 this month")
- *  color       string   — tailwind color key: blue | green | yellow | red | purple
- *  loading     boolean
+ * StatCard — dashboard metric card
  */
 const COLORS = {
-  blue:   { bg: 'bg-blue-50',   icon: 'bg-blue-100 text-blue-600',   text: 'text-blue-600' },
-  green:  { bg: 'bg-green-50',  icon: 'bg-green-100 text-green-600', text: 'text-green-600' },
-  yellow: { bg: 'bg-yellow-50', icon: 'bg-yellow-100 text-yellow-600', text: 'text-yellow-600' },
-  red:    { bg: 'bg-red-50',    icon: 'bg-red-100 text-red-600',     text: 'text-red-600' },
-  purple: { bg: 'bg-purple-50', icon: 'bg-purple-100 text-purple-600', text: 'text-purple-600' },
+  blue:   { icon: 'bg-indigo-50 text-indigo-600 ring-indigo-100', trend: 'text-indigo-600' },
+  green:  { icon: 'bg-emerald-50 text-emerald-600 ring-emerald-100', trend: 'text-emerald-600' },
+  yellow: { icon: 'bg-amber-50 text-amber-600 ring-amber-100', trend: 'text-amber-600' },
+  red:    { icon: 'bg-red-50 text-red-600 ring-red-100', trend: 'text-red-600' },
+  purple: { icon: 'bg-violet-50 text-violet-600 ring-violet-100', trend: 'text-violet-600' },
 }
 
 const StatCard = ({ title, value, icon, trend, color = 'blue', loading = false }) => {
   const c = COLORS[color] || COLORS.blue
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4">
-      {/* Icon */}
-      <div className={`w-11 h-11 rounded-lg flex items-center justify-center text-xl shrink-0 ${c.icon}`}>
+    <div className="card card-hover p-5 flex items-start gap-4">
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ring-1 ${c.icon}`}>
         {icon}
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-500 font-medium truncate">{title}</p>
+        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide truncate">{title}</p>
 
         {loading ? (
-          <div className="mt-1.5 h-7 w-20 bg-gray-100 rounded animate-pulse" />
+          <div className="mt-2 h-8 w-24 bg-slate-100 rounded-lg animate-pulse" />
         ) : (
-          <p className="text-2xl font-bold text-gray-900 mt-0.5">
+          <p className="text-2xl font-bold text-slate-900 mt-1 tracking-tight tabular-nums">
             {value ?? '—'}
           </p>
         )}
 
         {trend && !loading && (
-          <p className={`text-xs mt-1 font-medium ${c.text}`}>{trend}</p>
+          <p className={`text-xs mt-1.5 font-medium ${c.trend}`}>{trend}</p>
         )}
       </div>
     </div>

@@ -2,42 +2,44 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useModules } from '../context/ModuleContext'
 import { MODULE_ROUTES } from '../utils/constants'
+import { ROLE_LABELS } from '../utils/constants'
+import { NAV_ICONS } from './ui/icons'
 
-// ── Nav items per role ────────────────────────────────────────────────────────
 const NAV_ITEMS = {
   super_admin: [
-    { label: 'Dashboard', to: '/super-admin/dashboard', icon: '🏠' },
-    { label: 'Schools',   to: '/super-admin/schools',   icon: '🏫' },
-    { label: 'Users',     to: '/super-admin/users',     icon: '👥' },
-    { label: 'Billing',   to: '/super-admin/billing',   icon: '💳' },
-    { label: 'Settings',  to: '/super-admin/settings',  icon: '⚙️' },
+    { label: 'Dashboard', to: '/super-admin/dashboard', icon: 'dashboard' },
+    { label: 'Schools',   to: '/super-admin/schools',   icon: 'schools' },
+    { label: 'Users',     to: '/super-admin/users',     icon: 'users' },
+    { label: 'Billing',   to: '/super-admin/billing',   icon: 'billing' },
+    { label: 'Settings',  to: '/super-admin/settings',  icon: 'settings' },
   ],
   school_admin: [
-    { label: 'Dashboard',  to: '/dashboard',   icon: '🏠' },
-    { label: 'Students',   to: '/students',    icon: '🎓' },
-    { label: 'Teachers',   to: '/teachers',    icon: '👨‍🏫' },
-    { label: 'Academics',  to: '/academics',   icon: '📚' },
-    { label: 'Attendance', to: '/attendance',  icon: '✅', module: 'attendance' },
-    { label: 'Exams',      to: '/exams',       icon: '📝', module: 'exams' },
-    { label: 'Billing',    to: '/billing',     icon: '💳' },
-    { label: 'Settings',   to: '/settings',    icon: '⚙️' },
+    { label: 'Dashboard',       to: '/dashboard',      icon: 'dashboard' },
+    { label: 'Students',        to: '/students',       icon: 'students' },
+    { label: 'Teachers',        to: '/teachers',       icon: 'teachers' },
+    { label: 'Academic Years',  to: '/academic-years', icon: 'academics' },
+    { label: 'Classes',         to: '/academics',      icon: 'schools' },
+    { label: 'Attendance',      to: '/attendance',     icon: 'attendance', module: 'attendance' },
+    { label: 'Exams',           to: '/exams/terms',    icon: 'exams',      module: 'exams' },
+    { label: 'Billing',         to: '/billing',        icon: 'billing' },
+    { label: 'Settings',        to: '/settings',       icon: 'settings' },
   ],
   teacher: [
-    { label: 'Dashboard',  to: '/dashboard',   icon: '🏠' },
-    { label: 'Students',   to: '/students',    icon: '🎓' },
-    { label: 'Attendance', to: '/attendance',  icon: '✅', module: 'attendance' },
-    { label: 'Exams',      to: '/exams',       icon: '📝', module: 'exams' },
-    { label: 'Settings',   to: '/settings',    icon: '⚙️' },
+    { label: 'Dashboard',  to: '/dashboard',    icon: 'dashboard' },
+    { label: 'Students',   to: '/students',     icon: 'students' },
+    { label: 'Attendance', to: '/attendance',   icon: 'attendance', module: 'attendance' },
+    { label: 'Exams',      to: '/exams/entry',  icon: 'exams',      module: 'exams' },
+    { label: 'Settings',   to: '/settings',     icon: 'settings' },
   ],
   student: [
-    { label: 'Dashboard',  to: '/dashboard',   icon: '🏠' },
-    { label: 'Settings',   to: '/settings',    icon: '⚙️' },
+    { label: 'Dashboard',  to: '/dashboard',   icon: 'dashboard' },
+    { label: 'Settings',   to: '/settings',    icon: 'settings' },
   ],
   parent: [
-    { label: 'Dashboard',  to: '/dashboard',         icon: '🏠' },
-    { label: 'Attendance', to: '/parent/attendance', icon: '✅', module: 'attendance' },
-    { label: 'Results',    to: '/parent/results',    icon: '📝', module: 'exams' },
-    { label: 'Settings',   to: '/settings',          icon: '⚙️' },
+    { label: 'Dashboard',  to: '/dashboard',         icon: 'dashboard' },
+    { label: 'Attendance', to: '/parent/attendance', icon: 'attendance', module: 'attendance' },
+    { label: 'Results',    to: '/parent/results',    icon: 'results', module: 'exams' },
+    { label: 'Settings',   to: '/settings',          icon: 'settings' },
   ],
 }
 
@@ -66,29 +68,34 @@ const Sidebar = ({ open, onClose }) => {
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-black/40 z-20 lg:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-20 lg:hidden"
           onClick={onClose}
         />
       )}
 
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-30
-          flex flex-col transition-transform duration-300
+          fixed top-0 left-0 h-full w-[260px] z-30 flex flex-col
+          bg-slate-900 border-r border-slate-800/80
+          transition-transform duration-300 ease-out
           ${open ? 'translate-x-0' : '-translate-x-full'}
           lg:static lg:translate-x-0 lg:z-auto
         `}
       >
-        <div className="h-16 flex items-center justify-between px-5 border-b border-gray-700 shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-              S
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/40">
+              <span className="text-sm font-bold text-white">E</span>
             </div>
-            <span className="font-semibold text-sm tracking-wide">SMS Platform</span>
+            <div>
+              <p className="font-semibold text-sm text-white tracking-tight">EduFlow</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider">SMS Platform</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="lg:hidden p-1 rounded text-gray-400 hover:text-white"
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
             aria-label="Close sidebar"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,31 +104,46 @@ const Sidebar = ({ open, onClose }) => {
           </button>
         </div>
 
+        {/* Role badge */}
+        {user?.role && (
+          <div className="px-4 pt-4">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700/50">
+              {ROLE_LABELS[user.role] || user.role}
+            </span>
+          </div>
+        )}
+
+        {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
-          <ul className="space-y-1">
-            {navItems.map((item) => (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition
-                    ${isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                    }`
-                  }
-                >
-                  <span className="text-base">{item.icon}</span>
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
+          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            Menu
+          </p>
+          <ul className="space-y-0.5">
+            {navItems.map((item) => {
+              const Icon = NAV_ICONS[item.icon] || NAV_ICONS.dashboard
+              return (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `nav-link ${isActive ? 'nav-link-active' : 'nav-link-inactive'}`
+                    }
+                  >
+                    <Icon className="w-[18px] h-[18px] shrink-0 opacity-90" />
+                    {item.label}
+                  </NavLink>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
-        <div className="px-4 py-3 border-t border-gray-700 shrink-0">
-          <p className="text-xs text-gray-500 text-center">© 2024 SMS Platform</p>
+        {/* Footer */}
+        <div className="px-4 py-4 border-t border-slate-800 shrink-0">
+          <p className="text-[11px] text-slate-500 text-center">
+            © {new Date().getFullYear()} EduFlow
+          </p>
         </div>
       </aside>
     </>

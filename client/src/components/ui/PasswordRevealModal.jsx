@@ -94,7 +94,7 @@ const PasswordRevealModal = ({ open, onClose, name, email, password, isReset = f
           <p>
             Direct {name?.split(' ')[0]} to{' '}
             <span className="font-mono bg-blue-100 px-1 rounded">
-              {window.location.origin}/portal
+              {window.location.origin}
             </span>{' '}
             to sign in.
           </p>

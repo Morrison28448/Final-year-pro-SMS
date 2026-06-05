@@ -6,16 +6,13 @@ const MODULE_LABELS = {
   exams:      'Exams & Results',
 }
 
-/**
- * Blocks page content when the route's module is disabled for the school.
- */
 const ModuleGate = ({ moduleName, children }) => {
   const { isModuleEnabled, loading } = useModules()
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-sm text-gray-500">
-        Loading…
+      <div className="flex items-center justify-center py-16">
+        <div className="spinner-ring" />
       </div>
     )
   }

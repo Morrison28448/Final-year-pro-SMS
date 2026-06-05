@@ -23,10 +23,16 @@ export const ROLE_HOME = {
   parent:       '/dashboard',
 }
 
+/** Default landing page for unauthenticated users */
+export const PUBLIC_HOME = '/'
+
+/** Super admin login (not linked from public portal) */
+export const SUPER_ADMIN_LOGIN = '/super-admin/login'
+
 /** Sidebar paths gated by school module toggles */
 export const MODULE_ROUTES = {
   attendance: ['/attendance', '/parent/attendance'],
-  exams:      ['/exams', '/parent/results'],
+  exams:      ['/exams', '/exams/terms', '/exams/entry', '/exams/report', '/parent/results'],
 }
 
 export const ROLE_LABELS_SETTINGS_TAB = {

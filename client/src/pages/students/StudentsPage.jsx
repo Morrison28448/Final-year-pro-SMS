@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import useApi              from '../../hooks/useApi'
 import PageHeader          from '../../components/ui/PageHeader'
+import Button              from '../../components/ui/Button'
 import StudentsTable       from '../../components/students/StudentsTable'
 import StudentForm         from '../../components/students/StudentForm'
 import ConfirmDialog       from '../../components/ui/ConfirmDialog'
@@ -139,20 +140,17 @@ const StudentsPage = () => {
         title="Students"
         subtitle="Manage student enrolments, profiles and class assignments."
         action={canManage ? (
-          <button
-            onClick={openCreate}
-            className="px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
-          >
+          <Button onClick={openCreate}>
             <span className="text-base leading-none">+</span>
             Add Student
-          </button>
+          </Button>
         ) : null}
       />
 
       {/* ── Toast ───────────────────────────────────────────── */}
       {toast && (
-        <div className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium text-white
-          ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}
+        <div className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-medium text-white shadow-lg
+          ${toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}
         >
           {toast.message}
         </div>

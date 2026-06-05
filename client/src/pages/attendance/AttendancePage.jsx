@@ -7,6 +7,7 @@ import MarkAttendanceSheet     from '../../components/attendance/MarkAttendanceS
 import AttendanceStatsCard     from '../../components/attendance/AttendanceStatsCard'
 import AttendanceRecordsTable  from '../../components/attendance/AttendanceRecordsTable'
 import ModuleGate from '../../components/ModuleGate'
+import Tabs from '../../components/ui/Tabs'
 import {
   fetchAttendanceClasses,
   fetchAttendanceStats,
@@ -23,9 +24,9 @@ const monthStart = () => {
 
 // ── Tab definitions ───────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'mark',    label: '✏️  Mark Attendance' },
-  { id: 'records', label: '📋  Records' },
-  { id: 'stats',   label: '📊  Statistics' },
+  { id: 'mark',    label: 'Mark Attendance' },
+  { id: 'records', label: 'Records' },
+  { id: 'stats',   label: 'Statistics' },
 ]
 
 const AttendancePage = () => {
@@ -99,25 +100,10 @@ const AttendancePage = () => {
         subtitle="Mark daily attendance, view records and analyse trends."
       />
 
-      {/* ── Tabs ────────────────────────────────────────────── */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition
-              ${activeTab === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-              }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* ── Filters bar ─────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="card p-4">
         <div className="flex flex-wrap gap-4 items-end">
 
           {/* Class selector — shown on all tabs */}
@@ -183,8 +169,8 @@ const AttendancePage = () => {
       {activeTab === 'mark' && (
         <div>
           {!selectedClass ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
-              👆 Select a class above to load the attendance sheet.
+            <div className="alert-warning">
+              Select a class above to load the attendance sheet.
             </div>
           ) : (
             <MarkAttendanceSheet
