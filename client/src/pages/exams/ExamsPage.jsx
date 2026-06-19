@@ -71,7 +71,7 @@ const ExamsPage = () => {
       </div>
 
       {/* How it works — for context */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="card p-5">
         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">How It Works</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
@@ -110,7 +110,7 @@ const ExamsPage = () => {
           <Link
             key={to}
             to={to}
-            className="group bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200 flex flex-col gap-4"
+            className="group card p-6 hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4"
           >
             <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${accent}`}>
               <IconComp className="w-5 h-5" />

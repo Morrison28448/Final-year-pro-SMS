@@ -5,6 +5,7 @@ import FormField     from '../../components/ui/FormField'
 import Input         from '../../components/ui/Input'
 import Spinner       from '../../components/ui/Spinner'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
+import PageHeader    from '../../components/ui/PageHeader'
 import { Icons }     from '../../components/ui/icons'
 import {
   fetchAcademicYears, createAcademicYear, updateAcademicYear, deleteAcademicYear,
@@ -331,6 +332,7 @@ const AcademicYearPage = () => {
 
   const [createOpen, setCreateOpen]     = useState(false)
   const [levelsOpen, setLevelsOpen]     = useState(false)
+  const [expandedYearId, setExpandedYearId] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [promoteTarget, setPromoteTarget] = useState(null)
   const [createLoading, setCreateLoading] = useState(false)
@@ -410,29 +412,26 @@ const AcademicYearPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Academics</p>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Academic Years</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Manage academic years, terms, assessment weights and student progression.
-          </p>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <button onClick={() => setLevelsOpen(true)}
-            className="px-4 py-2.5 border border-gray-300 bg-white text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition flex items-center gap-2">
-            <Icons.ChartBar className="w-4 h-4" />
-            Class Progression
-          </button>
-          <button onClick={() => setCreateOpen(true)}
-            className="px-4 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-            </svg>
-            New Academic Year
-          </button>
-        </div>
-      </div>
+      <PageHeader 
+        title="Academic Years"
+        subtitle="Manage academic years, terms, assessment weights and student progression."
+        action={
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => setLevelsOpen(true)}
+              className="px-4 py-2.5 border border-white/50 bg-white/40 backdrop-blur-md text-gray-800 text-sm font-semibold rounded-xl hover:bg-white/60 transition flex items-center gap-2 shadow-sm">
+              <Icons.ChartBar className="w-4 h-4 text-indigo-600" />
+              Class Progression
+            </button>
+            <button onClick={() => setCreateOpen(true)}
+              className="px-4 py-2.5 bg-gradient-to-r from-gray-900 to-gray-800 text-white text-sm font-semibold rounded-xl hover:from-gray-800 hover:to-gray-700 transition flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200">
+              <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              New Academic Year
+            </button>
+          </div>
+        }
+      />
 
       {toast && (
         <div className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold text-white max-w-xs ${toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}>
@@ -442,7 +441,7 @@ const AcademicYearPage = () => {
 
       {/* Class progression summary */}
       {(levels || []).length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="card p-5 border-l-4 border-l-indigo-500">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Class Progression</p>
             <button onClick={() => setLevelsOpen(true)} className="text-xs text-blue-600 hover:underline">Edit</button>
@@ -467,11 +466,11 @@ const AcademicYearPage = () => {
 
       {/* Academic years list */}
       {yearsLoading ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center py-16">
+        <div className="card flex items-center justify-center py-16">
           <Spinner size="lg" />
         </div>
       ) : (years || []).length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-16 gap-3">
+        <div className="card flex flex-col items-center justify-center py-16 gap-3">
           <Icons.BookOpen className="w-10 h-10 text-gray-200" />
           <p className="text-sm font-semibold text-gray-500">No academic years yet</p>
           <p className="text-xs text-gray-400">Create your first academic year to get started.</p>
@@ -480,92 +479,124 @@ const AcademicYearPage = () => {
         <div className="space-y-4">
           {(years || []).map((year) => (
             <div key={year.id}
-              className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${year.is_active ? 'border-emerald-300 ring-2 ring-emerald-50' : 'border-gray-100'}`}>
+              className={`card overflow-hidden transition-all duration-300 ${year.is_active ? 'border-emerald-400 ring-2 ring-emerald-500/20 shadow-lg' : 'hover:shadow-md'}`}>
 
-              {/* Year header */}
-              <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-50">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-black text-gray-900">{year.name}</h3>
-                      {year.is_active && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wide border border-emerald-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          Active
-                        </span>
-                      )}
-                      {year.is_closed && (
-                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-bold uppercase tracking-wide">
-                          Closed
-                        </span>
-                      )}
+              {/* Year header (Clickable to expand) */}
+              <div 
+                className="card-header border-b border-white/40 cursor-pointer group"
+                onClick={() => setExpandedYearId(expandedYearId === year.id ? null : year.id)}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                  <div className="flex items-center gap-3">
+                    <svg className={`w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-transform duration-300 shrink-0 ${expandedYearId === year.id ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-black text-gray-900">{year.name}</h3>
+                        {year.is_active && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase tracking-widest border border-emerald-200 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Active Year
+                          </span>
+                        )}
+                        {year.is_closed && (
+                          <span className="px-2 py-0.5 rounded-lg bg-gray-100 text-gray-500 text-[10px] font-bold uppercase tracking-wide border border-gray-200">
+                            Closed
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <p className="text-xs font-semibold text-gray-500">
+                          {year.terms?.length || 0} Terms
+                        </p>
+                        {(year.start_date || year.end_date) && (
+                          <>
+                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                            <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              {year.start_date} {year.end_date ? `→ ${year.end_date}` : ''}
+                            </p>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    {(year.start_date || year.end_date) && (
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {year.start_date} {year.end_date ? `→ ${year.end_date}` : ''}
-                      </p>
+                  </div>
+
+                  <div className="flex gap-2 flex-wrap items-center" onClick={(e) => e.stopPropagation()}>
+                    {!year.is_active && !year.is_closed && (
+                      <button onClick={() => handleSetActive(year)}
+                        className="px-3.5 py-2 text-xs font-bold bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 hover:shadow-sm transition-all border border-emerald-100">
+                        Set as Active
+                      </button>
+                    )}
+                    {year.is_active && (
+                      <button onClick={() => handleEnrol(year)}
+                        className="px-3.5 py-2 text-xs font-bold bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 hover:shadow-sm transition-all border border-blue-100">
+                        Enrol Students
+                      </button>
+                    )}
+                    {year.is_active && (
+                      <button onClick={() => setPromoteTarget(year)}
+                        className="px-3.5 py-2 text-xs font-bold bg-amber-50 text-amber-700 rounded-xl hover:bg-amber-100 hover:shadow-sm transition-all border border-amber-100">
+                        Promote Students
+                      </button>
+                    )}
+                    {!year.is_active && (
+                      <button onClick={() => setDeleteTarget(year)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     )}
                   </div>
                 </div>
-
-                <div className="flex gap-2 flex-wrap">
-                  {!year.is_active && !year.is_closed && (
-                    <button onClick={() => handleSetActive(year)}
-                      className="px-3 py-1.5 text-xs font-semibold bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition">
-                      Set Active
-                    </button>
-                  )}
-                  {year.is_active && (
-                    <button onClick={() => handleEnrol(year)}
-                      className="px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
-                      Enrol Students
-                    </button>
-                  )}
-                  {year.is_active && (
-                    <button onClick={() => setPromoteTarget(year)}
-                      className="px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition">
-                      Promote Students
-                    </button>
-                  )}
-                  {!year.is_active && (
-                    <button onClick={() => setDeleteTarget(year)}
-                      className="px-3 py-1.5 text-xs font-semibold bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition">
-                      Delete
-                    </button>
-                  )}
-                </div>
               </div>
 
-              {/* Terms */}
-              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {(year.terms || []).map((term) => (
-                  <div key={term.id} className="border border-gray-100 rounded-xl p-3 bg-gray-50/50">
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <div className="w-6 h-6 rounded-md bg-gray-900 text-white flex items-center justify-center text-[10px] font-black shrink-0">
-                        {term.term_number}
-                      </div>
-                      <p className="text-sm font-bold text-gray-900">{term.name}</p>
-                    </div>
-                    <div className="space-y-1.5">
-                      {(term.assessments || []).map((a) => (
-                        <div key={a.id} className="flex items-center justify-between">
-                          <span className="text-xs text-gray-600">{a.name}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-gray-900">{a.weight}%</span>
-                            <span className="text-[10px] text-gray-400">/{a.max_score}</span>
+              {/* Terms (Expandable) */}
+              {expandedYearId === year.id && (
+                <div className="p-6 bg-white/20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {(year.terms || []).map((term) => (
+                      <div key={term.id} className="border border-white/60 bg-white/50 backdrop-blur-sm rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4 border-b border-gray-200/50 pb-3">
+                          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 text-indigo-700 flex items-center justify-center text-sm font-black shrink-0 shadow-inner">
+                            {term.term_number}
+                          </div>
+                          <p className="text-sm font-bold text-gray-900">{term.name}</p>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Assessment Breakdowns</p>
+                          {(term.assessments || []).map((a) => (
+                            <div key={a.id} className="flex items-center justify-between group/item">
+                              <span className="text-xs font-medium text-gray-600 group-hover/item:text-gray-900 transition-colors">{a.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-black text-indigo-600">{a.weight}%</span>
+                                <span className="text-[10px] text-gray-400 font-medium">/{a.max_score}</span>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="pt-3 mt-3 border-t border-gray-200/50 flex justify-between items-center">
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Weight</span>
+                            <span className={`text-sm font-black ${term.total_weight === 100 ? 'text-emerald-600' : 'text-red-600'}`}>
+                              {term.total_weight}%
+                            </span>
                           </div>
                         </div>
-                      ))}
-                      <div className="pt-1.5 border-t border-gray-200 flex justify-between">
-                        <span className="text-[10px] text-gray-400">Total</span>
-                        <span className={`text-[10px] font-bold ${term.total_weight === 100 ? 'text-emerald-600' : 'text-red-600'}`}>
-                          {term.total_weight}%
-                        </span>
                       </div>
-                    </div>
+                    ))}
+                    {(year.terms || []).length === 0 && (
+                      <div className="col-span-full py-8 flex flex-col items-center justify-center gap-2">
+                        <Icons.ClipboardList className="w-6 h-6 text-gray-300" />
+                        <p className="text-sm text-gray-500 italic">No terms configured for this year.</p>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

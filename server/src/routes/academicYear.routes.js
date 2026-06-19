@@ -5,6 +5,10 @@ const c = require('../controllers/academicYear.controller')
 
 router.use(protect)
 
+// ── Class level progression (MUST be before /:id) ─────────────────────────────
+router.get('/class-levels',  restrictTo('school_admin', 'teacher'), c.getClassLevels)
+router.put('/class-levels',  restrictTo('school_admin'),             c.saveClassLevels)
+
 // ── Academic Years ────────────────────────────────────────────────────────────
 router.get('/',         restrictTo('school_admin', 'teacher'), c.getAcademicYears)
 router.post('/',        restrictTo('school_admin'),             c.createAcademicYear)
@@ -16,9 +20,5 @@ router.delete('/:id',   restrictTo('school_admin'),             c.deleteAcademic
 router.post('/:id/enrol',   restrictTo('school_admin'), c.enrolStudents)
 router.post('/:id/promote', restrictTo('school_admin'), c.promoteStudents)
 router.get('/:id/students', restrictTo('school_admin', 'teacher'), c.getStudentRecords)
-
-// ── Class level progression ───────────────────────────────────────────────────
-router.get('/class-levels',  restrictTo('school_admin', 'teacher'), c.getClassLevels)
-router.put('/class-levels',  restrictTo('school_admin'),             c.saveClassLevels)
 
 module.exports = router

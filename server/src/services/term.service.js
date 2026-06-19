@@ -8,7 +8,7 @@ const getTerms = async (schoolId) => {
   const { data, error } = await supabase
     .from('terms')
     .select(`
-      id, name, academic_year, academic_year_id, term_number, is_active, created_at,
+      id, name, academic_year, academic_year_id, term_number, is_active, results_published, created_at,
       academic_years ( id, name ),
       term_assessments ( id, name, weight, max_score, sort_order )
     `)
@@ -28,7 +28,7 @@ const getTermById = async (schoolId, termId) => {
   const { data, error } = await supabase
     .from('terms')
     .select(`
-      id, name, academic_year, academic_year_id, term_number, is_active, created_at,
+      id, name, academic_year, academic_year_id, term_number, is_active, results_published, created_at,
       academic_years ( id, name ),
       term_assessments ( id, name, weight, max_score, sort_order )
     `)
@@ -44,6 +44,22 @@ const getTermById = async (schoolId, termId) => {
     academic_year_label: data.academic_years?.name || data.academic_year || null,
     assessments: (data.term_assessments || []).sort((a, b) => a.sort_order - b.sort_order),
   }
+}
+
+/**
+ * Toggle results_published for a term.
+ */
+const publishTerm = async (schoolId, termId, publish) => {
+  const { data, error } = await supabase
+    .from('terms')
+    .update({ results_published: publish })
+    .eq('id', termId)
+    .eq('school_id', schoolId)
+    .select('id, name, results_published')
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data
 }
 
 const createTerm = async (schoolId, { name, academicYear, assessments }) => {
@@ -97,18 +113,19 @@ const createTerm = async (schoolId, { name, academicYear, assessments }) => {
   }
 }
 
-const updateTerm = async (schoolId, termId, { name, academicYear, isActive }) => {
+const updateTerm = async (schoolId, termId, { name, academicYear, isActive, resultsPublished }) => {
   const updates = {}
-  if (name         !== undefined) updates.name          = name
-  if (academicYear !== undefined) updates.academic_year = academicYear
-  if (isActive     !== undefined) updates.is_active     = isActive
+  if (name             !== undefined) updates.name              = name
+  if (academicYear     !== undefined) updates.academic_year     = academicYear
+  if (isActive         !== undefined) updates.is_active         = isActive
+  if (resultsPublished !== undefined) updates.results_published = resultsPublished
 
   const { data, error } = await supabase
     .from('terms')
     .update(updates)
     .eq('id', termId)
     .eq('school_id', schoolId)
-    .select('id, name, academic_year, is_active')
+    .select('id, name, academic_year, is_active, results_published')
     .single()
 
   if (error) throw new Error(error.message)
@@ -314,8 +331,6 @@ const saveAssessmentScores = async ({ schoolId, assessmentId, subjectId, entries
       term_assessment_id:  assessmentId,
       subject_id:          subjectId,
       student_id:          e.student_id,
-      // exam_id is null for assessment-based results
-      exam_id:             null,
       score,
       grade,
       remarks: e.remarks || null,
@@ -574,7 +589,7 @@ const computeGrade = (score, max = 100) => {
 }
 
 module.exports = {
-  getTerms, getTermById, createTerm, updateTerm, deleteTerm,
+  getTerms, getTermById, createTerm, updateTerm, deleteTerm, publishTerm,
   getAssessmentSheet, saveAssessmentScores,
   getTerminalReport,
   generateScoreTemplate, parseScoreCSV,

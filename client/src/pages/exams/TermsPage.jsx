@@ -28,67 +28,87 @@ const AssessmentBuilder = ({ assessments, onChange }) => {
   const set = (i, field, val) => onChange(assessments.map((a, idx) => idx === i ? { ...a, [field]: val } : a))
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-semibold text-gray-700">Assessment Components</label>
-        <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${isValid ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
-          {totalWeight.toFixed(0)}% / 100%
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <label className="text-sm font-bold text-gray-900">Assessment Components</label>
+          <p className="text-[10px] text-gray-500 mt-0.5">Define grading components. Weights must total exactly 100%.</p>
+        </div>
+        <div className={`flex flex-col items-end`}>
+          <div className={`text-xs font-black px-2.5 py-1 rounded-lg ${isValid ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200 shadow-sm animate-pulse'}`}>
+            {totalWeight.toFixed(0)}% / 100%
+          </div>
         </div>
       </div>
 
-      {assessments.map((a, i) => (
-        <div key={i} className="grid grid-cols-12 gap-2 items-start">
-          <div className="col-span-5">
-            <Input
-              value={a.name}
-              onChange={(e) => set(i, 'name', e.target.value)}
-              placeholder="e.g. Midterm Exam"
-            />
-          </div>
-          <div className="col-span-3">
-            <div className="relative">
+      <div className="space-y-3">
+        {assessments.map((a, i) => (
+          <div key={i} className="flex gap-3 items-center bg-gray-50/50 p-3 rounded-xl border border-gray-100 hover:border-gray-300 transition-colors group">
+            <div className="flex-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Component Name</label>
               <Input
-                type="number" min="1" max="100"
-                value={a.weight}
-                onChange={(e) => set(i, 'weight', e.target.value)}
-                placeholder="Weight %"
+                value={a.name}
+                onChange={(e) => set(i, 'name', e.target.value)}
+                placeholder="e.g. Midterm Exam"
+                className="bg-white border-none shadow-sm focus:ring-indigo-500/20"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="relative">
+            <div className="w-28">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Weight %</label>
+              <div className="relative">
+                <Input
+                  type="number" min="1" max="100"
+                  value={a.weight}
+                  onChange={(e) => set(i, 'weight', e.target.value)}
+                  placeholder="%"
+                  className="bg-white border-none shadow-sm pr-6 focus:ring-indigo-500/20 font-bold text-indigo-700"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-indigo-300">%</span>
+              </div>
+            </div>
+            <div className="w-28">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Max Score</label>
               <Input
                 type="number" min="1"
                 value={a.maxScore}
                 onChange={(e) => set(i, 'maxScore', e.target.value)}
-                placeholder="Max score"
+                placeholder="Total"
+                className="bg-white border-none shadow-sm focus:ring-indigo-500/20"
               />
             </div>
+            <div className="w-8 flex justify-center pt-5">
+              {assessments.length > 1 && (
+                <button type="button" onClick={() => remove(i)} className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-          <div className="col-span-1 flex justify-end pt-1">
-            {assessments.length > 1 && (
-              <button onClick={() => remove(i)} className="p-1.5 text-gray-400 hover:text-red-500 transition rounded-lg hover:bg-red-50">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
-      <div className="flex items-center justify-between pt-1">
-        <button onClick={add}
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Component
-        </button>
-        {!isValid && (
-          <p className="text-xs text-red-600">Weights must sum to exactly 100%</p>
-        )}
+      <button type="button" onClick={add}
+        className="w-full py-3 mt-2 border-2 border-dashed border-gray-200 rounded-xl text-xs font-bold text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all flex items-center justify-center gap-2">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+        </svg>
+        Add Another Component
+      </button>
+
+      {/* Visual weight bar */}
+      <div className="mt-4 pt-3 border-t border-gray-100">
+        <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden flex shadow-inner">
+          {assessments.map((a, i) => {
+            const w = parseFloat(a.weight || 0)
+            if (w <= 0) return null
+            const colors = ['bg-indigo-500', 'bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-purple-400']
+            return (
+              <div key={i} style={{ width: `${w}%` }} className={`h-full ${colors[i % colors.length]} border-r border-white/20 last:border-0 transition-all duration-500`} title={`${a.name}: ${w}%`} />
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -126,33 +146,41 @@ const TermForm = ({ open, onClose, onSubmit, term = null, loading = false }) => 
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={isEdit ? 'Edit Term' : 'Create New Term'} size="md">
-      <form onSubmit={handleSubmit} className="space-y-5">
+    <Modal open={open} onClose={onClose} title={isEdit ? 'Edit Term' : 'Create New Term'} size="lg">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{error}</div>
+          <div className="p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl text-sm font-semibold text-red-700 shadow-sm flex items-center gap-3">
+            <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {error}
+          </div>
         )}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField label="Term Name" required>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="First Semester 2025/2026" />
-          </FormField>
-          <FormField label="Academic Year">
-            <Input value={academicYear} onChange={(e) => setYear(e.target.value)} placeholder="2025/2026" />
-          </FormField>
+        
+        <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 shadow-inner">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <FormField label="Term Name" required>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. First Semester" className="bg-white" />
+            </FormField>
+            <FormField label="Academic Year (Optional)">
+              <Input value={academicYear} onChange={(e) => setYear(e.target.value)} placeholder="e.g. 2025/2026" className="bg-white" />
+            </FormField>
+          </div>
         </div>
 
         {!isEdit && (
-          <div className="pt-2 border-t border-gray-100">
+          <div className="px-1">
             <AssessmentBuilder assessments={assessments} onChange={setAss} />
           </div>
         )}
 
-        <div className="flex gap-3 justify-end pt-2 border-t border-gray-100">
+        <div className="flex gap-3 justify-end pt-5 border-t border-gray-100">
           <button type="button" onClick={onClose} disabled={loading}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 disabled:opacity-50 transition">
+            className="px-5 py-2.5 border-2 border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 disabled:opacity-50 transition-colors">
             Cancel
           </button>
           <button type="submit" disabled={loading}
-            className="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-60 transition flex items-center gap-2">
+            className="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-gray-800 disabled:opacity-60 transition-all shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5">
             {loading && <Spinner size="sm" className="border-white border-t-transparent" />}
             {loading ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Term'}
           </button>
@@ -228,7 +256,7 @@ const TermsPage = () => {
       {loading ? (
         <div className="flex items-center justify-center py-20"><Spinner size="lg" /></div>
       ) : (terms || []).length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-20 gap-3">
+        <div className="card flex flex-col items-center justify-center py-20 gap-3">
           <Icons.BookOpen className="w-10 h-10 text-gray-200" />
           <p className="text-base font-semibold text-gray-500">No terms yet</p>
           <p className="text-sm text-gray-400">Create your first term to start managing assessments.</p>
@@ -236,7 +264,7 @@ const TermsPage = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {(terms || []).map((term) => (
-            <div key={term.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div key={term.id} className="card overflow-hidden">
               {/* Term header */}
               <div className="px-5 py-4 border-b border-gray-50 flex items-start justify-between">
                 <div>

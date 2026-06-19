@@ -51,6 +51,7 @@ const TerminalReportPage = () => {
       .finally(() => setReportLoading(false))
   }, [selectedClass, termId])
 
+  const term = yearTerms.find((t) => t.id === termId)
   const assessments = term?.assessments || []
   const students    = report?.students  || []
   const subjects    = report?.subjects  || []
@@ -74,7 +75,7 @@ const TerminalReportPage = () => {
       </div>
 
       {/* Class selector */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="card p-5">
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
           <FormField label="Academic Year">
             <Select value={yearId} onChange={(e) => setYearId(e.target.value)} disabled={yearsLoading}>
@@ -116,16 +117,16 @@ const TerminalReportPage = () => {
 
       {/* Report table */}
       {reportLoading ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center py-16">
+        <div className="card flex items-center justify-center py-16">
           <Spinner size="lg" />
         </div>
       ) : report && students.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-16 gap-2">
+        <div className="card flex flex-col items-center justify-center py-16 gap-2">
           <Icons.AcademicCap className="w-8 h-8 text-gray-200" />
           <p className="text-sm text-gray-400">No students or no scores entered yet for this class</p>
         </div>
       ) : report && students.length > 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="card overflow-hidden">
           {/* Header */}
           <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
             <div>
@@ -224,7 +225,7 @@ const TerminalReportPage = () => {
           </div>
         </div>
       ) : !selectedClass ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-16 gap-2">
+        <div className="card flex flex-col items-center justify-center py-16 gap-2">
           <Icons.ChartBar className="w-8 h-8 text-gray-200" />
           <p className="text-sm text-gray-400">
             {!yearId ? 'Select an academic year to begin'

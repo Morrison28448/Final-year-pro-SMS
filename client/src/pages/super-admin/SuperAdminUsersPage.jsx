@@ -8,6 +8,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import Select from '../../components/ui/Select'
 import { formatDate, getInitials } from '../../utils/helpers'
 import { ROLE_LABELS } from '../../utils/constants'
+import { Icons } from '../../components/ui/Icons'
 
 const ROLE_VARIANT = {
   school_admin: 'info',
@@ -37,38 +38,43 @@ const SuperAdminUsersPage = () => {
   const pagination = data?.pagination || {}
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50 p-6 space-y-6">
       <PageHeader
         title="Users"
         subtitle="All platform users across schools (excluding super admins)."
       />
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-gray-100">
+      <div className="card overflow-hidden">
+        <div className="card-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">All Users</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{pagination.total || 0} user(s)</p>
+            <h2 className="text-base font-black text-gray-900 flex items-center gap-2">
+              <Icons.Users className="w-5 h-5 text-indigo-500" /> All Users
+            </h2>
+            <p className="text-xs font-medium text-gray-500 mt-1">{pagination.total || 0} user(s) on platform</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <Select
               value={roleFilter}
               onChange={(e) => { setRoleFilter(e.target.value); setPage(1) }}
-              className="w-36"
+              className="w-40 bg-white border border-gray-200 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm"
             >
-              <option value="">All roles</option>
+              <option value="">All Roles</option>
               {['school_admin', 'teacher', 'student', 'parent'].map((r) => (
                 <option key={r} value={r}>{ROLE_LABELS[r]}</option>
               ))}
             </Select>
             <form onSubmit={handleSearch} className="flex gap-2">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search name or email…"
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
-              />
-              <button type="submit" className="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+              <div className="relative">
+                <Icons.Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Search name or email…"
+                  className="pl-9 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none w-full sm:w-56 transition-all shadow-sm"
+                />
+              </div>
+              <button type="submit" className="px-4 py-2 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm">
                 Search
               </button>
             </form>
@@ -81,38 +87,43 @@ const SuperAdminUsersPage = () => {
           <EmptyState icon="👥" title="No users found" description={search ? `No results for "${search}"` : 'No users match your filters.'} />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="data-table w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left">
-                  {['User', 'Role', 'School', 'Status', 'Joined'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
-                  ))}
+                <tr>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">User</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Role</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest hidden md:table-cell">School</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-gray-500 uppercase tracking-widest hidden lg:table-cell">Joined</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/20">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50 transition">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-semibold text-xs shrink-0">
+                  <tr key={u.id} className="hover:bg-white/40 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-50 text-indigo-700 flex items-center justify-center font-black text-sm shrink-0 shadow-inner">
                           {getInitials(u.first_name, u.last_name)}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{u.first_name} {u.last_name}</p>
-                          <p className="text-xs text-gray-400">{u.email}</p>
+                          <p className="font-bold text-gray-900 leading-tight">{u.first_name} {u.last_name}</p>
+                          <p className="text-[10px] font-medium text-gray-500 mt-0.5">{u.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4">
                       <Badge label={ROLE_LABELS[u.role] || u.role} variant={ROLE_VARIANT[u.role] || 'neutral'} />
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">
-                      {u.schools?.name || '—'}
+                    <td className="px-6 py-4 hidden md:table-cell">
+                      <p className="text-xs font-semibold text-gray-700">{u.schools?.name || '—'}</p>
                     </td>
-                    <td className="px-4 py-3">
-                      <Badge label={u.is_active ? 'Active' : 'Inactive'} variant={u.is_active ? 'success' : 'danger'} />
+                    <td className="px-6 py-4">
+                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${u.is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-gray-100 text-gray-600 border border-gray-200'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${u.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'}`} />
+                        {u.is_active ? 'Active' : 'Inactive'}
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{formatDate(u.created_at)}</td>
+                    <td className="px-6 py-4 text-xs font-medium text-gray-500 hidden lg:table-cell">{formatDate(u.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -121,13 +132,13 @@ const SuperAdminUsersPage = () => {
         )}
 
         {!loading && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-            <p className="text-xs text-gray-500">Page {pagination.page} of {pagination.totalPages}</p>
+          <div className="flex items-center justify-between px-6 py-4 border-t border-white/40">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Page {pagination.page} of {pagination.totalPages}</p>
             <div className="flex gap-2">
               <button onClick={() => setPage((p) => p - 1)} disabled={pagination.page <= 1}
-                className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 transition">← Prev</button>
+                className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition shadow-sm">← Prev</button>
               <button onClick={() => setPage((p) => p + 1)} disabled={pagination.page >= pagination.totalPages}
-                className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 transition">Next →</button>
+                className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition shadow-sm">Next →</button>
             </div>
           </div>
         )}

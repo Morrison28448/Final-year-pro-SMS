@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, Fragment } from 'react'
 import useApi        from '../../hooks/useApi'
 import PageHeader    from '../../components/ui/PageHeader'
 import Modal         from '../../components/ui/Modal'
@@ -208,6 +208,7 @@ const AcademicsPage = () => {
   const [editTarget, setEditTarget]     = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [classSetupTarget, setClassSetupTarget] = useState(null)
+  const [expandedClassId, setExpandedClassId] = useState(null)
   const [formLoading, setFormLoading]   = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [toast, setToast]               = useState(null)
@@ -318,22 +319,19 @@ const AcademicsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Academics</p>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Classes & Subjects</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Manage classes, create subjects, then assign each subject to a teacher.
-          </p>
-        </div>
-        <button onClick={() => { setEditTarget(null); setFormOpen(true) }}
-          className="px-4 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition flex items-center gap-2 self-start sm:self-auto">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          {isClasses ? 'Add Class' : 'Add Subject'}
-        </button>
-      </div>
+      <PageHeader
+        title="Classes & Subjects"
+        subtitle="Manage classes, create subjects, then assign each subject to a teacher."
+        action={
+          <button onClick={() => { setEditTarget(null); setFormOpen(true) }}
+            className="px-5 py-2.5 bg-gradient-to-r from-gray-900 to-gray-800 text-white text-sm font-semibold rounded-xl hover:from-gray-800 hover:to-gray-700 transition flex items-center gap-2 self-start sm:self-auto shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200">
+            <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            {isClasses ? 'Add Class' : 'Add Subject'}
+          </button>
+        }
+      />
 
       {toast && (
         <div className={`fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold text-white ${toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}>
@@ -342,20 +340,20 @@ const AcademicsPage = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-white/40 backdrop-blur-sm p-1.5 rounded-xl w-fit border border-white/50 shadow-sm">
         {[
           { id: 'classes',  label: 'Classes' },
           { id: 'subjects', label: 'Subjects' },
         ].map((tab) => (
           <button key={tab.id} onClick={() => { setActiveTab(tab.id); setEditTarget(null); setFormOpen(false) }}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-md transform scale-105' : 'text-gray-500 hover:text-gray-800'}`}>
             {tab.label}
           </button>
         ))}
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="card overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-16"><Spinner size="lg" /></div>
         ) : items.length === 0 ? (
@@ -365,76 +363,98 @@ const AcademicsPage = () => {
           </div>
         ) : isClasses ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="data-table">
               <thead>
-                <tr className="bg-gray-50/60">
+                <tr>
                   {['Class', 'Section', 'Students', 'Subjects & Teachers', 'Actions'].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">{h}</th>
+                    <th key={h}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody>
                 {items.map((cls) => (
-                  <tr key={cls.id} className="hover:bg-gray-50/40 transition-colors">
-                    <td className="px-5 py-3.5">
-                      <p className="text-sm font-bold text-gray-900">{cls.name}</p>
-                    </td>
-                    <td className="px-5 py-3.5 text-xs text-gray-500">{cls.section || '—'}</td>
-                    <td className="px-5 py-3.5">
-                      <span className="text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-700 rounded-lg">{cls.student_count}</span>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      {cls.subjects?.length === 0 ? (
-                        <span className="text-xs text-gray-400">None assigned</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1.5">
-                          {(cls.subjects || []).map((s) => (
-                            <div key={s.subject_id} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
-                              <span className="text-xs font-semibold text-gray-700">{s.subject_code || s.subject_name}</span>
-                              {s.teacher_name ? (
-                                <span className="text-[10px] text-gray-500 border-l border-gray-300 pl-1">
-                                  {s.teacher_name.split(' ').map((n) => n[0]).join('.')}
-                                </span>
-                              ) : (
-                                <span className="text-[10px] text-amber-500 border-l border-gray-300 pl-1">unassigned</span>
-                              )}
-                            </div>
-                          ))}
+                  <Fragment key={cls.id}>
+                    <tr 
+                      onClick={() => setExpandedClassId(expandedClassId === cls.id ? null : cls.id)}
+                      className="hover:bg-white/40 transition-colors cursor-pointer group"
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 text-gray-400 group-hover:text-indigo-500 transition-transform duration-300 ${expandedClassId === cls.id ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                          <p className="text-sm font-bold text-gray-900">{cls.name}</p>
                         </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex gap-1.5">
-                        <button onClick={() => setClassSetupTarget(cls)}
-                          className="px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
-                          Setup
-                        </button>
-                        <button onClick={() => { setEditTarget(cls); setFormOpen(true) }}
-                          className="px-2.5 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
-                          Edit
-                        </button>
-                        <button onClick={() => setDeleteTarget(cls)}
-                          className="px-2.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-5 py-3.5 text-xs text-gray-500">{cls.section || '—'}</td>
+                      <td className="px-5 py-3.5">
+                        <span className="text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-700 rounded-lg">{cls.student_count}</span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="text-xs font-medium text-gray-500 bg-gray-100/50 px-2 py-1 rounded-md">{cls.subjects?.length || 0} subjects</span>
+                      </td>
+                      <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex gap-1.5">
+                          <button onClick={() => setClassSetupTarget(cls)}
+                            className="px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                            Setup
+                          </button>
+                          <button onClick={() => { setEditTarget(cls); setFormOpen(true) }}
+                            className="px-2.5 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                            Edit
+                          </button>
+                          <button onClick={() => setDeleteTarget(cls)}
+                            className="px-2.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {expandedClassId === cls.id && (
+                      <tr className="bg-white/20 border-t border-white/30">
+                        <td colSpan={5} className="px-5 py-6">
+                          {cls.subjects?.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-6 gap-2">
+                              <Icons.BookOpen className="w-6 h-6 text-gray-300" />
+                              <p className="text-sm text-gray-500 italic">No subjects assigned yet.</p>
+                              <button onClick={() => setClassSetupTarget(cls)} className="text-xs text-indigo-600 hover:underline font-semibold mt-1">Assign subjects</button>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {(cls.subjects || []).map((s) => (
+                                <div key={s.subject_id} className="flex items-center gap-3 p-3 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-100 to-blue-50 text-indigo-700 flex items-center justify-center text-xs font-black shrink-0 shadow-inner">
+                                    {s.subject_code ? s.subject_code.slice(0, 3) : s.subject_name?.slice(0, 2).toUpperCase()}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-gray-900 truncate">{s.subject_name}</p>
+                                    <p className="text-[10px] font-medium text-gray-500 mt-0.5 flex items-center gap-1">
+                                      Teacher: {s.teacher_name ? <span className="text-indigo-600 font-bold truncate">{s.teacher_name}</span> : <span className="text-amber-500 font-semibold italic">Unassigned</span>}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="data-table">
               <thead>
-                <tr className="bg-gray-50/60">
+                <tr>
                   {['Subject Name', 'Code', 'Actions'].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">{h}</th>
+                    <th key={h}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody>
                 {items.map((sub) => (
                   <tr key={sub.id} className="hover:bg-gray-50/40 transition-colors">
                     <td className="px-5 py-3.5 font-semibold text-gray-900">{sub.name}</td>

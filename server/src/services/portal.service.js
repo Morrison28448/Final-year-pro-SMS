@@ -231,7 +231,8 @@ const getMyAttendance = async (user, { startDate, endDate } = {}) => {
 }
 
 /**
- * Get the student's own exam results.
+ * Get the student's own results — computed as weighted terminal scores.
+ * Groups by term → subject → shows one terminal score per subject (not raw assessment scores).
  */
 const getMyResults = async (user) => {
   const { data: student } = await supabase
@@ -241,57 +242,138 @@ const getMyResults = async (user) => {
     .eq('school_id', user.school_id)
     .single()
 
-  if (!student) return { results: [], exams: [] }
+  if (!student) return { student: null, terms: [] }
 
-  const { data, error } = await supabase
+  // Fetch all result rows for this student (assessment-based, term_assessment_id set)
+  const { data: rawResults, error: rErr } = await supabase
     .from('results')
     .select(`
       id, score, grade, remarks,
-      exams    ( id, name, exam_date ),
-      subjects ( id, name, code )
+      subject_id,
+      subjects ( id, name, code ),
+      term_assessment_id,
+      term_assessments (
+        id, name, weight, max_score,
+        term_id,
+        terms ( id, name, term_number, results_published, academic_year_id,
+          academic_years ( id, name )
+        )
+      )
     `)
     .eq('school_id', user.school_id)
     .eq('student_id', student.id)
+    .not('term_assessment_id', 'is', null)
     .order('created_at', { ascending: false })
 
-  if (error) throw new Error(error.message)
+  if (rErr) throw new Error(rErr.message)
 
-  // Group by exam
-  const byExam = {}
-  ;(data || []).forEach((r) => {
-    const eid = r.exams?.id
-    if (!byExam[eid]) {
-      byExam[eid] = {
-        exam_id:   eid,
-        exam_name: r.exams?.name,
-        exam_date: r.exams?.exam_date,
-        subjects:  [],
-        total:     0,
-        average:   0,
+  // Only show results where the term has results_published = true
+  const publishedTermIds = new Set()
+  ;(rawResults || []).forEach((r) => {
+    if (r.term_assessments?.terms?.results_published) {
+      publishedTermIds.add(r.term_assessments.terms.id)
+    }
+  })
+  const visibleResults = (rawResults || []).filter((r) =>
+    publishedTermIds.has(r.term_assessments?.terms?.id)
+  )
+
+  // Build lookup: termId → subjectId → assessmentId → { score, weight, maxScore }
+  const termMap = {}   // termId → { termInfo, subjectId → { subjectInfo, assessments: [] } }
+
+  ;(visibleResults).forEach((r) => {
+    const ta   = r.term_assessments
+    const term = ta?.terms
+    if (!ta || !term) return
+
+    const termId    = term.id
+    const subjectId = r.subject_id
+
+    if (!termMap[termId]) {
+      termMap[termId] = {
+        term_id:            termId,
+        term_name:          term.name,
+        term_number:        term.term_number,
+        academic_year_id:   term.academic_year_id,
+        academic_year_name: term.academic_years?.name || null,
+        subjects:           {},
       }
     }
-    byExam[eid].subjects.push({
-      subject_name: r.subjects?.name,
-      subject_code: r.subjects?.code,
-      score:        r.score,
-      grade:        r.grade,
-      remarks:      r.remarks,
+
+    if (!termMap[termId].subjects[subjectId]) {
+      termMap[termId].subjects[subjectId] = {
+        subject_id:   r.subjects?.id,
+        subject_name: r.subjects?.name,
+        subject_code: r.subjects?.code,
+        components:   [],   // raw assessment scores
+      }
+    }
+
+    termMap[termId].subjects[subjectId].components.push({
+      assessment_name: ta.name,
+      weight:          parseFloat(ta.weight),
+      max_score:       parseFloat(ta.max_score),
+      raw_score:       parseFloat(r.score),
     })
   })
 
-  // Compute totals
-  Object.values(byExam).forEach((e) => {
-    const scores = e.subjects.map((s) => parseFloat(s.score || 0))
-    e.total   = scores.reduce((a, b) => a + b, 0)
-    e.average = scores.length > 0 ? Math.round((e.total / scores.length) * 10) / 10 : 0
+  // Compute weighted terminal score per subject per term
+  const terms = Object.values(termMap).map((term) => {
+    const subjects = Object.values(term.subjects).map((sub) => {
+      // terminal = Σ (raw / max × weight)
+      const terminal = sub.components.reduce((sum, c) => {
+        return sum + (c.raw_score / c.max_score) * c.weight
+      }, 0)
+      const rounded = Math.round(terminal * 10) / 10
+
+      return {
+        subject_id:      sub.subject_id,
+        subject_name:    sub.subject_name,
+        subject_code:    sub.subject_code,
+        terminal_score:  rounded,
+        grade:           computeTerminalGrade(rounded),
+        components:      sub.components,  // kept for detail view
+      }
+    })
+
+    const entered  = subjects.filter((s) => s.terminal_score > 0)
+    const average  = entered.length > 0
+      ? Math.round((entered.reduce((s, sub) => s + sub.terminal_score, 0) / entered.length) * 10) / 10
+      : 0
+
+    return {
+      term_id:            term.term_id,
+      term_name:          term.term_name,
+      term_number:        term.term_number,
+      academic_year_name: term.academic_year_name,
+      subjects,
+      average,
+      overall_grade:      computeTerminalGrade(average),
+    }
+  })
+
+  // Sort by term_number within each academic year, newest year first
+  terms.sort((a, b) => {
+    if (a.academic_year_name !== b.academic_year_name) {
+      return (b.academic_year_name || '').localeCompare(a.academic_year_name || '')
+    }
+    return (a.term_number || 0) - (b.term_number || 0)
   })
 
   return {
     student: { ...student, class_name: student.classes?.name },
-    exams: Object.values(byExam).sort((a, b) =>
-      new Date(b.exam_date || 0) - new Date(a.exam_date || 0)
-    ),
+    terms,
   }
+}
+
+/** Grade from weighted terminal percentage */
+const computeTerminalGrade = (score) => {
+  if (score >= 90) return 'A+'
+  if (score >= 80) return 'A'
+  if (score >= 70) return 'B'
+  if (score >= 60) return 'C'
+  if (score >= 50) return 'D'
+  return 'F'
 }
 
 /**

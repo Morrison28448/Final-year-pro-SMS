@@ -142,9 +142,19 @@ const uploadScores = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
+const publishTerm = async (req, res, next) => {
+  try {
+    const publish = req.body.publish !== false // default true
+    const term = await termService.publishTerm(req.user.school_id, req.params.id, publish)
+    const msg = publish ? `Results published for "${term.name}"` : `Results unpublished for "${term.name}"`
+    return success(res, { term }, msg)
+  } catch (err) { next(err) }
+}
+
 module.exports = {
   getTerms, getTermById, createTerm, updateTerm, deleteTerm,
   getAssessmentSheet, saveAssessmentScores,
   getTerminalReport,
   downloadTemplate, uploadScores,
+  publishTerm,
 }

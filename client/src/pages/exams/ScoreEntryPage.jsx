@@ -115,6 +115,14 @@ const ScoreEntryPage = () => {
     setSubjectId(''); setSheet(null); setScores({})
   }, [classId, isTeacher])
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type }); setTimeout(() => setToast(null), 4500)
+  }
+
+  const setScore   = (sid, val) => setScores((p) => ({ ...p, [sid]: { ...p[sid], score: val } }))
+  const setRemarks = (sid, val) => setScores((p) => ({ ...p, [sid]: { ...p[sid], remarks: val } }))
+
   // ── Load score sheet ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!assessmentId || !classId || !subjectId) { setSheet(null); setScores({}); return }
@@ -131,14 +139,6 @@ const ScoreEntryPage = () => {
       .catch((err) => showToast(getErrorMessage(err), 'error'))
       .finally(() => setSheetLoading(false))
   }, [assessmentId, classId, subjectId])
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  const showToast = (msg, type = 'success') => {
-    setToast({ msg, type }); setTimeout(() => setToast(null), 4500)
-  }
-
-  const setScore   = (sid, val) => setScores((p) => ({ ...p, [sid]: { ...p[sid], score: val } }))
-  const setRemarks = (sid, val) => setScores((p) => ({ ...p, [sid]: { ...p[sid], remarks: val } }))
 
   const handleSave = async () => {
     const entries = Object.entries(scores)
@@ -221,7 +221,7 @@ const ScoreEntryPage = () => {
       )}
 
       {/* Selector panel */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+      <div className="card p-5 space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Make Your Selections</p>
           <Steps steps={stepData} current={currentStep} />
@@ -298,13 +298,13 @@ const ScoreEntryPage = () => {
 
       {/* Score sheet */}
       {sheetLoading && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center py-16">
+        <div className="card flex items-center justify-center py-16">
           <Spinner size="lg" />
         </div>
       )}
 
       {!sheetLoading && sheet && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="card overflow-hidden">
           {/* Sheet header */}
           <div className="px-5 py-4 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -436,7 +436,7 @@ const ScoreEntryPage = () => {
 
       {/* Empty state */}
       {!sheetLoading && !sheet && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-16 gap-3">
+        <div className="card flex flex-col items-center justify-center py-16 gap-3">
           <Icons.ClipboardList className="w-10 h-10 text-gray-200" />
           <p className="text-sm font-semibold text-gray-500">
             {!yearId       ? 'Start by selecting an academic year'
