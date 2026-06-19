@@ -355,7 +355,7 @@ const LandingPage = () => {
               </span>
             </button>
 
-            <a href="/super-admin/login"
+            <a href="/register"
               className="group px-8 py-4 rounded-2xl text-base font-semibold border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all duration-200 flex items-center justify-center gap-2">
               Register a School
               <svg className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -465,7 +465,6 @@ const LandingPage = () => {
                                   <p className="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors truncate">
                                     {school.name}
                                   </p>
-                                  {school.email && <p className="text-xs text-white/30 truncate">{school.email}</p>}
                                 </div>
                                 <svg className="w-4 h-4 text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -645,7 +644,7 @@ const LandingPage = () => {
                 </svg>
               </span>
             </button>
-            <a href="/super-admin/login"
+            <a href="/register"
               className="px-8 py-4 rounded-2xl text-base font-semibold border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all flex items-center justify-center gap-2 text-white/70 hover:text-white">
               Register a School
             </a>

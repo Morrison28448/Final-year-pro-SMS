@@ -10,6 +10,7 @@ import DashboardLayout from '../layouts/DashboardLayout'
 import LandingPage         from '../pages/LandingPage'
 import LoginPage           from '../pages/auth/LoginPage'
 import SuperAdminLoginPage from '../pages/auth/SuperAdminLoginPage'
+import SchoolRegistrationPage from '../pages/auth/SchoolRegistrationPage'
 
 // Shared dashboard pages
 import DashboardHome  from '../pages/dashboard/DashboardHome'
@@ -51,7 +52,7 @@ const AppRouter = () => (
 
     {/* Legacy portal redirect → landing */}
     <Route path="/portal"   element={<Navigate to="/" replace />} />
-    <Route path="/register" element={<Navigate to="/" replace />} />
+    <Route path="/register" element={<SchoolRegistrationPage />} />
 
     {/* ── Protected: super_admin only ───────────────────────── */}
     <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
